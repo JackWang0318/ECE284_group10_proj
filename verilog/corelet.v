@@ -1,4 +1,4 @@
-module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, in_n, ofifo_rd, ofifo_full, ofifo_ready, ofifo_valid, psum_out, data_sram_to_sfu, accumulate, relu, data_out);
+module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, ofifo_rd, ofifo_full, ofifo_ready, ofifo_valid, psum_out, data_sram_to_sfu, accumulate, relu, data_out);
 	parameter bw = 4;
 	parameter psum_bw = 16;
 	parameter col = 8;
@@ -10,7 +10,7 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, in
     input l0_rd, l0_wr;
     output l0_full, l0_ready;
     
-    input [bw*col-1:0] in_n; //data from ififo to mac_array (output stationary); = 0 if weight stationary
+    // input [psum_bw*col-1:0] in_n; //data from ififo to mac_array (output stationary); = 0 if weight stationary
 
 
     input ofifo_rd;
@@ -26,6 +26,10 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, in
     wire [col-1:0] mac_out_valid; //valid from mac_array to ofifo
 
     wire [row*bw-1:0] data_out_l0; //data from l0 to mac_array
+
+    wire [psum_bw*col-1:0] in_n;
+
+    assign in_n = 128'b0;
 
 
 

@@ -1,0 +1,1 @@
+# This folder for pics or other non-code files

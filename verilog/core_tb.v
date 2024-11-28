@@ -15,7 +15,7 @@ parameter len_nij = 36;
 reg clk = 0;
 reg reset = 1;
 
-wire [33:0] inst_q; 
+wire [34:0] inst_q; 
 
 reg [1:0]  inst_w_q = 0; 
 reg [bw*row-1:0] D_xmem_q = 0;
@@ -40,6 +40,8 @@ reg execute_q = 0;
 reg load_q = 0;
 reg acc_q = 0;
 reg acc = 0;
+reg relu = 0;
+reg relu_q = 0;
 
 reg [1:0]  inst_w; 
 reg [bw*row-1:0] D_xmem;
@@ -66,6 +68,7 @@ integer captured_data;
 integer t, i, j, k, kij;
 integer error;
 
+assign inst_q[34] = relu_q;
 assign inst_q[33] = acc_q;
 assign inst_q[32] = CEN_pmem_q;
 assign inst_q[31] = WEN_pmem_q;
@@ -109,7 +112,7 @@ initial begin
   $dumpfile("core_tb.vcd");
   $dumpvars(0,core_tb);
 
-  x_file = $fopen("activation_tile0.txt", "r");
+  x_file = $fopen("activation.txt", "r");
   // Following three lines are to remove the first three comment lines of the file
   x_scan_file = $fscanf(x_file,"%s", captured_data);
   x_scan_file = $fscanf(x_file,"%s", captured_data);
@@ -147,27 +150,14 @@ initial begin
   $fclose(x_file);
   /////////////////////////////////////////////////
 
+  w_file_name = "weight.txt";
+  w_file = $fopen(w_file_name, "r");
+  // Following three lines are to remove the first three comment lines of the file
+  w_scan_file = $fscanf(w_file,"%s", captured_data);
+  w_scan_file = $fscanf(w_file,"%s", captured_data);
+  w_scan_file = $fscanf(w_file,"%s", captured_data);
 
   for (kij=0; kij<9; kij=kij+1) begin  // kij loop
-
-    case(kij)
-     0: w_file_name = "weight_itile0_otile0_kij0.txt";
-     1: w_file_name = "weight_itile0_otile0_kij1.txt";
-     2: w_file_name = "weight_itile0_otile0_kij2.txt";
-     3: w_file_name = "weight_itile0_otile0_kij3.txt";
-     4: w_file_name = "weight_itile0_otile0_kij4.txt";
-     5: w_file_name = "weight_itile0_otile0_kij5.txt";
-     6: w_file_name = "weight_itile0_otile0_kij6.txt";
-     7: w_file_name = "weight_itile0_otile0_kij7.txt";
-     8: w_file_name = "weight_itile0_otile0_kij8.txt";
-    endcase
-    
-
-    w_file = $fopen(w_file_name, "r");
-    // Following three lines are to remove the first three comment lines of the file
-    w_scan_file = $fscanf(w_file,"%s", captured_data);
-    w_scan_file = $fscanf(w_file,"%s", captured_data);
-    w_scan_file = $fscanf(w_file,"%s", captured_data);
 
     #0.5 clk = 1'b0;   reset = 1;
     #0.5 clk = 1'b1; 
@@ -350,8 +340,8 @@ initial begin
 
 
   ////////// Accumulation /////////
-  acc_file = $fopen("acc_address.txt", "r");
-  out_file = $fopen("out.txt", "r");  
+  acc_file = $fopen("address.txt", "r");
+  out_file = $fopen("output.txt", "r");  
 
   // Following three lines are to remove the first three comment lines of the file
   out_scan_file = $fscanf(out_file,"%s", answer); 
@@ -381,7 +371,7 @@ initial begin
        end
     end
    
- 
+
     #0.5 clk = 1'b0; reset = 1;
     #0.5 clk = 1'b1;  
     #0.5 clk = 1'b0; reset = 0; 
@@ -396,9 +386,15 @@ initial begin
         if (j>0)  acc = 1;  
       #0.5 clk = 1'b1;   
     end
-
+  
     #0.5 clk = 1'b0; acc = 0;
     #0.5 clk = 1'b1; 
+
+    #0.5 clk = 1'b0; relu = 1;
+    #0.5 clk = 1'b1; 
+    #0.5 clk = 1'b0; relu = 0;
+    #0.5 clk = 1'b1; 
+
   end
 
 
@@ -437,6 +433,7 @@ always @ (posedge clk) begin
    l0_wr_q    <= l0_wr ;
    execute_q  <= execute;
    load_q     <= load;
+   relu_q     <= relu;
 end
 
 
