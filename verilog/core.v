@@ -52,8 +52,8 @@ sram_32b_w2048 #(
 );
 
 wire pmem_clk;
-wire [127:0] pmem_data_in;
-wire [127:0] pmem_data_out;
+wire [31:0] pmem_data_in;
+wire [31:0] pmem_data_out;
 wire pmem_chip_en;
 wire pmem_wr_en;
 wire [10:0] pmem_addr_in;
@@ -89,7 +89,7 @@ corelet #(
     .l0_wr(inst[2]),
     .l0_full(),
     .l0_ready(),
-    .in_n(inst[4:0]),
+    .in_n(),
     .ofifo_rd(inst[6]),
     .ofifo_full(),
     .ofifo_ready(),
@@ -97,7 +97,7 @@ corelet #(
     .psum_out(corelet_sfp_data_out),
     .data_sram_to_sfu(corelet_data_in_acc),
     .accumulate(inst[33]),
-    .relu(0),
+    .relu(1'b0),
     .data_out(corelet_data_out)
 );
 
