@@ -5,7 +5,7 @@ Zhongdongming Dai, Jheng-Ying Lin, Kejia Ruan, Yanghe Sun, Hongjie Wang
 
 - Part1. Train VGG16 with quantization-aware training (10%)
 
-TODO
+See branch part1
 - Part2. Complete RTL core design connecting the following blocks: (5%)
 
 TODO

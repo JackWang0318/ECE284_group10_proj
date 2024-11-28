@@ -350,6 +350,7 @@ initial begin
 
 
   ////////// Accumulation /////////
+  acc_file = $fopen("acc_address.txt", "r");
   out_file = $fopen("out.txt", "r");  
 
   // Following three lines are to remove the first three comment lines of the file
