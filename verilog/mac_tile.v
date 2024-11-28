@@ -31,7 +31,7 @@ mac #(.bw(bw), .psum_bw(psum_bw)) mac_instance (
 assign out_e = a_q;
 assign inst_e = inst_q;
 assign out_s = mac_out;
-、、
+
 always @ (posedge clk) begin
 	if (reset == 1) begin
 			inst_q <= 0;

@@ -86,7 +86,7 @@ core  #(.bw(bw), .col(col), .row(row)) core_instance (
 	.clk(clk), 
 	.inst(inst_q),
 	.ofifo_valid(ofifo_valid),
-        .D_xmem(D_xmem_q), 
+        .d_xmem(D_xmem_q), 
         .sfp_out(sfp_out), 
 	.reset(reset)); 
 
