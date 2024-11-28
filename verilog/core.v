@@ -90,7 +90,7 @@ corelet #(
     .l0_wr(inst[2]),
     .l0_full(),
     .l0_ready(),
-    .in_n(),
+    .in_n(32'b0),
     .ofifo_rd(inst[6]),
     .ofifo_full(),
     .ofifo_ready(),
