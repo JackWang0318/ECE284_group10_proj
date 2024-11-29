@@ -1,1 +1,0 @@
-# this folder for pics or other non-coding files

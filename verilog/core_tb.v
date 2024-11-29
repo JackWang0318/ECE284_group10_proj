@@ -15,7 +15,7 @@ parameter len_nij = 36;
 reg clk = 0;
 reg reset = 1;
 
-wire [33:0] inst_q; 
+wire [34:0] inst_q; 
 
 reg [1:0]  inst_w_q = 0; 
 reg [bw*row-1:0] D_xmem_q = 0;
@@ -40,6 +40,8 @@ reg execute_q = 0;
 reg load_q = 0;
 reg acc_q = 0;
 reg acc = 0;
+reg relu = 0;
+reg relu_q = 0;
 
 reg [1:0]  inst_w; 
 reg [bw*row-1:0] D_xmem;
@@ -66,6 +68,7 @@ integer captured_data;
 integer t, i, j, k, kij;
 integer error;
 
+assign inst_q[34] = relu_q;
 assign inst_q[33] = acc_q;
 assign inst_q[32] = CEN_pmem_q;
 assign inst_q[31] = WEN_pmem_q;
@@ -383,9 +386,15 @@ initial begin
         if (j>0)  acc = 1;  
       #0.5 clk = 1'b1;   
     end
-
+  
     #0.5 clk = 1'b0; acc = 0;
     #0.5 clk = 1'b1; 
+
+    #0.5 clk = 1'b0; relu = 1;
+    #0.5 clk = 1'b1; 
+    #0.5 clk = 1'b0; relu = 0;
+    #0.5 clk = 1'b1; 
+
   end
 
 
@@ -424,6 +433,7 @@ always @ (posedge clk) begin
    l0_wr_q    <= l0_wr ;
    execute_q  <= execute;
    load_q     <= load;
+   relu_q     <= relu;
 end
 
 

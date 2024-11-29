@@ -6,7 +6,7 @@ module core #(
 )(
     input clk,
     input reset,
-    input [33:0] inst,
+    input [34:0] inst,
     input [bw*row-1:0] d_xmem,
     output ofifo_valid,
     output [psum_bw*col-1:0] sfp_out
@@ -14,7 +14,6 @@ module core #(
 
 wire corelet_clk;
 wire corelet_reset;
-wire [33:0] corelet_inst;
 wire [bw*row-1:0] corelet_data_in;
 wire [psum_bw*col-1:0] corelet_data_in_acc;
 wire [psum_bw*col-1:0] corelet_data_out;
@@ -22,7 +21,6 @@ wire [psum_bw*col-1:0] corelet_sfp_data_out;
 
 assign corelet_clk = clk;
 assign corelet_reset = reset;
-assign corelet_inst = inst[33:0];
 assign corelet_data_in_acc = pmem_data_out;
 assign corelet_data_in = xmem_data_out;
 assign sfp_out = corelet_sfp_data_out;
@@ -84,13 +82,13 @@ corelet #(
 ) corelet_insts (
     .clk(corelet_clk),
     .reset(corelet_reset),
-    .inst(corelet_inst[1:0]),
+    .inst(inst[1:0]),
     .data_to_l0(corelet_data_in),
     .l0_rd(inst[3]),
     .l0_wr(inst[2]),
     .l0_full(),
     .l0_ready(),
-    .in_n(32'b0),
+    .in_n(128'b0),
     .ofifo_rd(inst[6]),
     .ofifo_full(),
     .ofifo_ready(),
@@ -98,7 +96,7 @@ corelet #(
     .psum_out(corelet_data_out),
     .data_sram_to_sfu(corelet_data_in_acc),
     .accumulate(inst[33]),
-    .relu(1'b0),
+    .relu(inst[34]),
     .data_out(corelet_sfp_data_out)
 );
 

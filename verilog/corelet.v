@@ -10,7 +10,7 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, in
     input l0_rd, l0_wr;
     output l0_full, l0_ready;
     
-    input [bw*col-1:0] in_n; //data from ififo to mac_array (output stationary); = 0 if weight stationary
+    input [psum_bw*col-1:0] in_n; //data from ififo to mac_array (output stationary); = 0 if weight stationary
 
 
     input ofifo_rd;
