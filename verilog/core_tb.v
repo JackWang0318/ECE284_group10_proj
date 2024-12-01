@@ -85,12 +85,15 @@ assign inst_q[1]   = execute_q;
 assign inst_q[0]   = load_q; 
 
 
+reg send_output;
+
 core  #(.bw(bw), .col(col), .row(row)) core_instance (
 	.clk(clk), 
 	.inst(inst_q),
 	.ofifo_valid(ofifo_valid),
         .d_xmem(D_xmem_q), 
         .sfp_out(sfp_out), 
+        .send_output(send_output),
 	.reset(reset)); 
 
 
@@ -108,6 +111,7 @@ initial begin
   l0_wr    = 0;
   execute  = 0;
   load     = 0;
+  send_output = 0;
 
   $dumpfile("core_tb.vcd");
   $dumpvars(0,core_tb);
@@ -312,7 +316,7 @@ initial begin
     #0.5 clk = 1'b0;
     ofifo_rd = 1;     // OFIFO read enable
     #0.5 clk = 1'b1;
-
+/* testing
     for (t=0; t<len_nij+1; t=t+1) begin  
       #0.5 clk = 1'b0;
 			WEN_pmem = 0;
@@ -326,6 +330,7 @@ initial begin
     CEN_pmem = 1; 
     ofifo_rd = 0;
     #0.5 clk = 1'b1;
+    */
 
     for (i=0; i<10 ; i=i+1) begin
       #0.5 clk = 1'b0;
@@ -372,10 +377,11 @@ initial begin
     end
    
 
-    #0.5 clk = 1'b0; reset = 1;
-    #0.5 clk = 1'b1;  
-    #0.5 clk = 1'b0; reset = 0; 
-    #0.5 clk = 1'b1;  
+    // #0.5 clk = 1'b0; reset = 1;
+    // #0.5 clk = 1'b1;  
+    // #0.5 clk = 1'b0; reset = 0; 
+    // #0.5 clk = 1'b1;  
+    /*
 
     for (j=0; j<len_kij+1; j=j+1) begin 
 
@@ -394,6 +400,11 @@ initial begin
     #0.5 clk = 1'b1; 
     #0.5 clk = 1'b0; relu = 0;
     #0.5 clk = 1'b1; 
+    */
+
+    #0.5 clk = 1'b0; send_output = 1;
+    #0.5 clk = 1'b1; 
+
 
   end
 

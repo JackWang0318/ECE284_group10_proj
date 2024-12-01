@@ -9,7 +9,8 @@ module core #(
     input [34:0] inst,
     input [bw*row-1:0] d_xmem,
     output ofifo_valid,
-    output [psum_bw*col-1:0] sfp_out
+    output [psum_bw*col-1:0] sfp_out,
+    input send_output
 );
 
 wire corelet_clk;
@@ -93,11 +94,12 @@ corelet #(
     .ofifo_full(),
     .ofifo_ready(),
     .ofifo_valid(ofifo_valid),
-    .psum_out(corelet_data_out),
+    // .psum_out(corelet_data_out),
     .data_sram_to_sfu(corelet_data_in_acc),
     .accumulate(inst[33]),
     .relu(inst[34]),
-    .data_out(corelet_sfp_data_out)
+    .data_out(corelet_sfp_data_out),
+    .send_output(send_output)
 );
 
 endmodule

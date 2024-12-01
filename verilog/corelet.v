@@ -1,4 +1,4 @@
-module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, ofifo_rd, ofifo_full, ofifo_ready, ofifo_valid, psum_out, data_sram_to_sfu, accumulate, relu, data_out);
+module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, ofifo_rd, ofifo_full, ofifo_ready, ofifo_valid, data_sram_to_sfu, accumulate, relu, data_out, send_output);
 	parameter bw = 4;
 	parameter psum_bw = 16;
 	parameter col = 8;
@@ -15,12 +15,13 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
 
     input ofifo_rd;
     output ofifo_full, ofifo_ready, ofifo_valid;
-    output [psum_bw*col-1:0] psum_out; //data from ofifo to SRAM
+    // output [psum_bw*col-1:0] psum_out; //data from ofifo to SRAM
 
     input [psum_bw*col-1:0] data_sram_to_sfu; //data from SRAM to sfu
     input accumulate, relu; //control signals for sfu
     output [psum_bw*col-1:0] data_out; //final output
 
+    input send_output; //control signal for output
 
     wire [psum_bw*col-1:0] mac_out; //data from mac_array to ofifo
     wire [col-1:0] mac_out_valid; //valid from mac_array to ofifo
@@ -29,7 +30,13 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
 
     wire [psum_bw*col-1:0] in_n;
 
+    wire in_valid;
+
+    assign in_valid = ofifo_rd & ofifo_valid;
+
     assign in_n = 128'b0;
+
+    wire [psum_bw*col-1:0] psum_out;
 
 
 
@@ -75,8 +82,10 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
             .acc(accumulate),
             .relu(relu),
             .reset(reset),
-            .in(data_sram_to_sfu[psum_bw*i-1 : psum_bw*(i-1)]),
-            .out(data_out[psum_bw*i-1 : psum_bw*(i-1)])
+            .in_valid(in_valid),
+            .in(psum_out[psum_bw*i-1 : psum_bw*(i-1)]),
+            .out(data_out[psum_bw*i-1 : psum_bw*(i-1)]),
+            .out_valid(send_output)
         );
     end
 
