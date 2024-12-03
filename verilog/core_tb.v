@@ -287,45 +287,55 @@ initial begin
     #0.5 clk = 1'b1;
 
     for (i=0; i<len_nij; i=i+1) begin
-			#0.5 clk = 1'b0;
-			execute = 1;      // execute
-			#0.5 clk = 1'b1; 
-		end
+      #0.5 clk = 1'b0;
+      execute = 1;      // execute
+      #0.5 clk = 1'b1; 
+      if (ofifo_valid) begin
+        #0.5 clk = 1'b0;
+          ofifo_rd = 1;     // OFIFO read enable
+          WEN_pmem = 0;
+          CEN_pmem = 0;
+          if (i>18) A_pmem = A_pmem + 1;  // first valid i is 18
+          // $display("i: %d, A_pmem: %d, WEN_pmem_q: %d, CEN_pmem_q: %d", i, A_pmem, WEN_pmem_q, CEN_pmem_q);
+        #0.5 clk = 1'b1;
+
+        #0.5 clk = 1'b0;
+          // $display("i: %d, A_pmem: %d, WEN_pmem_q: %d, CEN_pmem_q: %d", i, A_pmem, WEN_pmem_q, CEN_pmem_q);
+          ofifo_rd = 0;
+          WEN_pmem = 1;
+          CEN_pmem = 1;
+        #0.5 clk = 1'b1;
+      end
+    end
 
     for (i=0; i<row+col ; i=i+1) begin
+      #0.5 clk = 1'b0;
+      if (ofifo_valid) begin
         #0.5 clk = 1'b0;
-        #0.5 clk = 1'b1;  
+          ofifo_rd = 1;     // OFIFO read enable
+          WEN_pmem = 0;
+          CEN_pmem = 0;
+          A_pmem = A_pmem + 1;
+          // $display("i: %d, A_pmem: ", i, A_pmem);
+        #0.5 clk = 1'b1;
+
+        #0.5 clk = 1'b0;
+          ofifo_rd = 0;
+          WEN_pmem = 1;
+          CEN_pmem = 1;
+        #0.5 clk = 1'b1;
+      end
+      #0.5 clk = 1'b1;  
     end
 
     #0.5 clk = 1'b0;  
     execute = 0;      // execute ends
     l0_rd = 0;        // L0 read disable
-    #0.5 clk = 1'b1;  
-    /////////////////////////////////////
-
-
-
-    //////// OFIFO READ ////////
-    // Ideally, OFIFO should be read while execution, but we have enough ofifo
-    // depth so we can fetch out after execution.
-    
-    #0.5 clk = 1'b0;
-    ofifo_rd = 1;     // OFIFO read enable
-    #0.5 clk = 1'b1;
-
-    for (t=0; t<len_nij+1; t=t+1) begin  
-      #0.5 clk = 1'b0;
-			WEN_pmem = 0;
-			CEN_pmem = 0;
-			if (t>0) A_pmem = A_pmem + 1; 
-      #0.5 clk = 1'b1;  
-    end
-
-    #0.5 clk = 1'b0;  
+    ofifo_rd = 0;     // OFIFO read disable
     WEN_pmem = 1;  
     CEN_pmem = 1; 
-    ofifo_rd = 0;
-    #0.5 clk = 1'b1;
+    #0.5 clk = 1'b1;  
+    /////////////////////////////////////
 
     for (i=0; i<10 ; i=i+1) begin
       #0.5 clk = 1'b0;
