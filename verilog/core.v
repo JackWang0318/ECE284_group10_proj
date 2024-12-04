@@ -10,6 +10,11 @@ module core #(
     input [bw*row-1:0] d_xmem,
     output ofifo_valid,
     output [psum_bw*col-1:0] sfp_out
+
+    input [psum_bw*col-1:0] in_n_weight
+    input mode
+    output [psum_bw*col*row-1:0] os_out_array
+
 );
 
 wire [bw*row-1:0] data_in;
@@ -63,7 +68,7 @@ corelet #(
     .l0_wr(inst[2]),
     .l0_full(),
     .l0_ready(),
-    // .in_n(128'b0),
+    .in_n_weight(in_n_weight),
     .ofifo_rd(inst[6]),
     .ofifo_full(),
     .ofifo_ready(),
@@ -72,7 +77,9 @@ corelet #(
     .data_sram_to_sfu(acc_in),
     .accumulate(inst[33]),
     .relu(inst[34]),
-    .data_out(spf_out)
+    .data_out(spf_out),
+    .os_out_array(os_out_array),
+    .mode(mode)
 );
 
 endmodule

@@ -1,4 +1,4 @@
-module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, ofifo_rd, ofifo_full, ofifo_ready, ofifo_valid, psum_out, data_sram_to_sfu, accumulate, relu, data_out);
+module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, ofifo_rd, ofifo_full, ofifo_ready, ofifo_valid, psum_out, data_sram_to_sfu, accumulate, relu, data_out, mode, in_n_weight, os_out_array);
 	parameter bw = 4;
 	parameter psum_bw = 16;
 	parameter col = 8;
@@ -10,8 +10,6 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
     input l0_rd, l0_wr;
     output l0_full, l0_ready;
     
-    // input [psum_bw*col-1:0] in_n; //data from ififo to mac_array (output stationary); = 0 if weight stationary
-
 
     input ofifo_rd;
     output ofifo_full, ofifo_ready, ofifo_valid;
@@ -21,6 +19,11 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
     input accumulate, relu; //control signals for sfu
     output [psum_bw*col-1:0] data_out; //final output
 
+    input mode;
+    input [psum_bw*col-1:0] in_n_weight; //data from ififo to mac_array (output stationary); = 0 if weight stationary
+    output [psum_bw*col*row-1:0] os_out_array; //output stationary
+    
+
 
     wire [psum_bw*col-1:0] mac_out; //data from mac_array to ofifo
     wire [col-1:0] mac_out_valid; //valid from mac_array to ofifo
@@ -29,10 +32,12 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
 
     wire [psum_bw*col-1:0] in_n;
 
-    assign in_n = 128'b0;
+    assign in_n = (mode == 0) ? 128'b0 : in_n_weight_out;
 
 
 
+
+//L0 for input activation
     l0 #(.row(row), .bw(bw)) l0_instance (
         .clk(clk),
         .reset(reset),
@@ -43,6 +48,18 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
         .o_full(l0_full),
         .o_ready(l0_ready)
     );
+    
+//TODO: L0 for weights
+// l0 #(.row(row), .bw(bw)) l0_weight_instance (
+//         .clk(clk),
+//         .reset(reset),
+//         .in(in_n_weight),
+//         .out(in_n_weight_out),
+//         .rd(),
+//         .wr(),
+//         .o_full(),
+//         .o_ready()
+//     );
 
     mac_array #(.bw(bw), .psum_bw(psum_bw), .col(col), .row(row)) mac_array_instance (
         .clk(clk),
@@ -51,7 +68,9 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
         .in_n(in_n),
         .inst_w(inst[1:0]),
         .out_s(mac_out),
-        .valid(mac_out_valid)
+        .valid(mac_out_valid),
+        .mode(mode),
+        .os_out_array(os_out_array)
     );
 
 
