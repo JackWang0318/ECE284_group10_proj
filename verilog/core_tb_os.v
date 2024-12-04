@@ -222,15 +222,15 @@ initial begin
 
     /////// Kernel data writing to L0 ///////
 
-    WEN_xmem = 1; // Xmem read enable
-    CEN_xmem = 0; // Xmem chip enable
+    WEN_wmem = 1; // wmem read enable
+    CEN_wmem = 0; // wmem chip enable
     l0_wr = 1;    // L0 write enable
     l0_rd = 0;    // L0 read disable
-    A_xmem = 11'b10000000000;   // address set to the start of kernel data
+    A_wmem = 11'b0;   // address set to the start of kernel data
 
     for (i=0; i<col; i=i+1) begin
 			#0.5 clk = 1'b0;
-			if (t>0) A_xmem = A_xmem + 1; 
+			if (t>0) A_wmem = A_wmem + 1; 
 			#0.5 clk = 1'b1; 
 		end
 
