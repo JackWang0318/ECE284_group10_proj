@@ -36,7 +36,7 @@ module mac_array (clk, reset, out_s, in_w, in_n, inst_w, valid, mode, os_out_arr
 	  		.in_n(temp_in_n[psum_bw*col*i-1 : psum_bw*col*(i-1)]),
 	  		.out_s(temp_in_n[psum_bw*col*(i+1)-1 : psum_bw*col*i]),
 			.mode(mode),
-			.os_out_row(os_out_array[psum_bw*col*row*i-1 : psum_bw*col*row*(i-1)])  	
+			.os_out_row(os_out_array[psum_bw*col*i-1 : psum_bw*col*(i-1)])  	
 			);
   	end
 
