@@ -63,7 +63,7 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, if
     );
     
 // IFIFO for weights
-    ififo #(.row(row), .bw(bw)) ififo_instance (
+    l0 #(.row(row), .bw(bw)) ififo_instance (
             .clk(clk),
             .reset(reset),
             .in(in_n_weight),
