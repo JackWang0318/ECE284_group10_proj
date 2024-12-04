@@ -28,15 +28,15 @@ module mac_array (clk, reset, out_s, in_w, in_n, inst_w, valid, mode, os_out_arr
 	genvar i;
   	for (i=1; i < row+1 ; i=i+1) begin : row_num
 		mac_row #(.bw(bw), .psum_bw(psum_bw)) mac_row_instance (
-      		.clk(clk),
-	  		.reset(reset),
-	  		.inst_w(temp_inst[2*i-1 : 2*(i-1)]),
-	  		.in_w(in_w[bw*i-1 : bw*(i-1)]),
-	  		.valid(temp_v[col*i-1 : col*(i-1)]),
-	  		.in_n(temp_in_n[psum_bw*col*i-1 : psum_bw*col*(i-1)]),
-	  		.out_s(temp_in_n[psum_bw*col*(i+1)-1 : psum_bw*col*i]),
-			.mode(mode),
-			.os_out_row(os_out_array[psum_bw*col*i-1 : psum_bw*col*(i-1)])  	
+				.clk(clk),
+				.reset(reset),
+				.inst_w(temp_inst[2*i-1 : 2*(i-1)]),
+				.in_w(in_w[bw*i-1 : bw*(i-1)]),
+				.valid(temp_v[col*i-1 : col*(i-1)]),
+				.in_n(temp_in_n[psum_bw*col*i-1 : psum_bw*col*(i-1)]),
+				.out_s(temp_in_n[psum_bw*col*(i+1)-1 : psum_bw*col*i]),
+				.mode(mode),
+				.os_out_row(os_out_array[psum_bw*col*i-1 : psum_bw*col*(i-1)])  	
 			);
   	end
 

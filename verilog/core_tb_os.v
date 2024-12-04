@@ -61,6 +61,7 @@ reg [8*30:1] stringvar;
 reg [8*30:1] w_file_name;
 wire ofifo_valid;
 wire [col*psum_bw-1:0] sfp_out;
+wire [psum_bw-1:0] os_s_out;
 wire [bw*col-1:0] in_n_weight;
 wire [psum_bw*col*row-1:0] os_out_array;
 
@@ -89,7 +90,11 @@ assign inst_q[2]   = l0_wr_q;
 assign inst_q[1]   = execute_q; 
 assign inst_q[0]   = load_q; 
 
-
+os_result_reader  os_result_reader_instance (
+  .clk(clk), 
+  .out(os_s_out),
+  .os_out_array(os_out_array),
+  .reset(reset));
 core  #(.bw(bw), .col(col), .row(row)) core_instance (
 	.clk(clk), 
 	.inst(inst_q),
@@ -346,7 +351,11 @@ initial begin
   end  // end of kij loop
 
 
-  ////////// Accumulation /////////
+  for (t=0; t<10; t=t+1) begin  
+    #0.5 clk = 1'b0;  
+    #0.5 clk = 1'b1;  
+  end
+  
   out_file = $fopen("output_os.txt", "r");  
 
   // Following three lines are to remove the first three comment lines of the file
@@ -355,52 +364,20 @@ initial begin
   out_scan_file = $fscanf(out_file,"%s", answer); 
 
   error = 0;
-
-
-
   $display("############ Verification Start during accumulation #############"); 
 
   for (i=0; i<len_onij+1; i=i+1) begin 
-
     #0.5 clk = 1'b0; 
     #0.5 clk = 1'b1; 
-
-    if (i>0) begin
-     out_scan_file = $fscanf(out_file,"%128b", answer); // reading from out file to answer
-       if (sfp_out == answer)
-         $display("%2d-th output featuremap Data matched! :D", i); 
-       else begin
-         $display("%2d-th output featuremap Data ERROR!!", i); 
-         $display("sfpout: %128b", sfp_out);
-         $display("answer: %128b", answer);
-         error = 1;
-       end
+    out_scan_file = $fscanf(out_file,"%128b", answer);
+    if (os_s_out == answer)
+        $display("%2d-th output featuremap Data matched! :D", i); 
+    else begin
+      $display("%2d-th output featuremap Data ERROR!!", i); 
+      $display("os_out: %16b", os_s_out);
+      $display("answer: %16b", answer);
+      error = 1;
     end
-   
-
-    #0.5 clk = 1'b0; reset = 1;
-    #0.5 clk = 1'b1;  
-    #0.5 clk = 1'b0; reset = 0; 
-    #0.5 clk = 1'b1;  
-
-    for (j=0; j<len_kij+1; j=j+1) begin 
-
-      #0.5 clk = 1'b0;   
-        if (j<len_kij) begin CEN_pmem = 0; WEN_pmem = 1; acc_scan_file = $fscanf(acc_file,"%11b", A_pmem); end
-                       else  begin CEN_pmem = 1; WEN_pmem = 1; end
-
-        if (j>0)  acc = 1;  
-      #0.5 clk = 1'b1;   
-    end
-  
-    #0.5 clk = 1'b0; acc = 0;
-    #0.5 clk = 1'b1; 
-
-    #0.5 clk = 1'b0; relu = 1;
-    #0.5 clk = 1'b1; 
-    #0.5 clk = 1'b0; relu = 0;
-    #0.5 clk = 1'b1; 
-
   end
 
 
@@ -409,18 +386,10 @@ initial begin
   	$display("########### Project Completed !! ############"); 
 
   end
-
-  $fclose(acc_file);
-  //////////////////////////////////
-
-  for (t=0; t<10; t=t+1) begin  
-    #0.5 clk = 1'b0;  
-    #0.5 clk = 1'b1;  
-  end
-
   #10 $finish;
 
 end
+
 
 always @ (posedge clk) begin
    inst_w_q   <= inst_w; 
