@@ -6,13 +6,13 @@ module core #(
 )(
     input clk,
     input reset,
-    input [34:0] inst,
+    input [35:0] inst,
     input [bw*row-1:0] d_xmem,
     output ofifo_valid,
-    output [psum_bw*col-1:0] sfp_out
+    output [psum_bw*col-1:0] sfp_out,
 
-    input [psum_bw*col-1:0] in_n_weight
-    input mode
+    input [bw*col-1:0] in_n_weight,
+    // input mode, // inst[35]
     output [psum_bw*col*row-1:0] os_out_array
 
 );
@@ -69,6 +69,10 @@ corelet #(
     .l0_full(),
     .l0_ready(),
     .in_n_weight(in_n_weight),
+    .ififo_rd(inst[4]),
+    .ififo_wr(inst[5]),
+    .ififo_full(),
+    .ififo_ready(),
     .ofifo_rd(inst[6]),
     .ofifo_full(),
     .ofifo_ready(),
@@ -79,7 +83,7 @@ corelet #(
     .relu(inst[34]),
     .data_out(spf_out),
     .os_out_array(os_out_array),
-    .mode(mode)
+    .mode(inst[35])
 );
 
 endmodule

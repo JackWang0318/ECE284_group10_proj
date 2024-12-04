@@ -1,4 +1,4 @@
-module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, ofifo_rd, ofifo_full, ofifo_ready, ofifo_valid, psum_out, data_sram_to_sfu, accumulate, relu, data_out, mode, in_n_weight, os_out_array);
+module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, ififo_rd, ififo_wr, ififo_full, ififo_ready, ofifo_rd, ofifo_full, ofifo_ready, ofifo_valid, psum_out, data_sram_to_sfu, accumulate, relu, data_out, mode, in_n_weight, os_out_array);
 	parameter bw = 4;
 	parameter psum_bw = 16;
 	parameter col = 8;
@@ -9,7 +9,9 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
     input [bw*row-1:0] data_to_l0;
     input l0_rd, l0_wr;
     output l0_full, l0_ready;
-    
+
+    input ififo_rd, ififo_wr;
+    output ififo_full, ififo_ready;    
 
     input ofifo_rd;
     output ofifo_full, ofifo_ready, ofifo_valid;
@@ -20,10 +22,9 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
     output [psum_bw*col-1:0] data_out; //final output
 
     input mode;
-    input [psum_bw*col-1:0] in_n_weight; //data from ififo to mac_array (output stationary); = 0 if weight stationary
+    input [bw*col-1:0] in_n_weight; //data from ififo to mac_array (output stationary); = 0 if weight stationary
     output [psum_bw*col*row-1:0] os_out_array; //output stationary
     
-
 
     wire [psum_bw*col-1:0] mac_out; //data from mac_array to ofifo
     wire [col-1:0] mac_out_valid; //valid from mac_array to ofifo
@@ -32,7 +33,19 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
 
     wire [psum_bw*col-1:0] in_n;
 
-    assign in_n = (mode == 0) ? 128'b0 : in_n_weight_out;
+    wire [bw*col-1:0] in_n_weight_out;
+
+    // assign in_n = (mode == 0) ? 128'b0 : in_n_weight_out;
+
+    // assign 4*8-bit ififo output in_n_weight_out to 16*8-bit mac_array input in_n
+    genvar j;
+    generate
+        for (j = 0; j < col; j = j + 1) begin
+            assign in_n[(j+1)*psum_bw-1:j*psum_bw] = 
+                (mode == 0) ? 16'b0 : {12'b0, in_n_weight_out[(j+1)*bw-1:j*bw]};
+        end
+    endgenerate
+
 
 
 
@@ -49,18 +62,18 @@ module corelet(clk, reset, inst, data_to_l0, l0_rd, l0_wr, l0_full, l0_ready, of
         .o_ready(l0_ready)
     );
     
-//TODO: L0 for weights
-// l0 #(.row(row), .bw(bw)) l0_weight_instance (
-//         .clk(clk),
-//         .reset(reset),
-//         .in(in_n_weight),
-//         .out(in_n_weight_out),
-//         .rd(),
-//         .wr(),
-//         .o_full(),
-//         .o_ready()
-//     );
-
+// IFIFO for weights
+    ififo #(.row(row), .bw(bw)) ififo_instance (
+            .clk(clk),
+            .reset(reset),
+            .in(in_n_weight),
+            .out(in_n_weight_out),
+            .rd(ififo_rd),
+            .wr(ififo_wr),
+            .o_full(ififo_full),
+            .o_ready(ififo_ready)
+        );
+   
     mac_array #(.bw(bw), .psum_bw(psum_bw), .col(col), .row(row)) mac_array_instance (
         .clk(clk),
         .reset(reset),

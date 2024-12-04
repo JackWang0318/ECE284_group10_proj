@@ -15,7 +15,7 @@ parameter len_nij = 36;
 reg clk = 0;
 reg reset = 1;
 
-wire [34:0] inst_q; 
+wire [35:0] inst_q; 
 
 reg [1:0]  inst_w_q = 0; 
 reg [bw*row-1:0] D_xmem_q = 0;
@@ -42,6 +42,8 @@ reg acc_q = 0;
 reg acc = 0;
 reg relu = 0;
 reg relu_q = 0;
+reg mode = 0;
+reg mode_q = 0;
 
 reg [1:0]  inst_w; 
 reg [bw*row-1:0] D_xmem;
@@ -59,6 +61,8 @@ reg [8*30:1] stringvar;
 reg [8*30:1] w_file_name;
 wire ofifo_valid;
 wire [col*psum_bw-1:0] sfp_out;
+wire [bw*col-1:0] in_n_weight;
+wire [psum_bw*col*row-1:0] os_out_array;
 
 integer x_file, x_scan_file ; // file_handler
 integer w_file, w_scan_file ; // file_handler
@@ -68,6 +72,7 @@ integer captured_data;
 integer t, i, j, k, kij;
 integer error;
 
+assign inst_q[35] = mode_q;
 assign inst_q[34] = relu_q;
 assign inst_q[33] = acc_q;
 assign inst_q[32] = CEN_pmem_q;
@@ -89,8 +94,10 @@ core  #(.bw(bw), .col(col), .row(row)) core_instance (
 	.clk(clk), 
 	.inst(inst_q),
 	.ofifo_valid(ofifo_valid),
-        .d_xmem(D_xmem_q), 
-        .sfp_out(sfp_out), 
+  .d_xmem(D_xmem_q), 
+  .sfp_out(sfp_out), 
+  .in_n_weight(in_n_weight),
+  .os_out_array(os_out_array),
 	.reset(reset)); 
 
 
@@ -434,6 +441,7 @@ always @ (posedge clk) begin
    execute_q  <= execute;
    load_q     <= load;
    relu_q     <= relu;
+   mode_q     <= mode;
 end
 
 
