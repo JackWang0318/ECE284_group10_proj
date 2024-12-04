@@ -47,6 +47,7 @@ reg mode_q = 0;
 
 reg [1:0]  inst_w; 
 reg [bw*row-1:0] D_xmem;
+reg [bw*col-1:0] D_wmem;
 reg [psum_bw*col-1:0] answer;
 
 
@@ -73,9 +74,12 @@ integer captured_data;
 integer t, i, j, k, kij;
 integer error;
 
-assign inst_q[35] = mode_q;
-assign inst_q[34] = relu_q;
-assign inst_q[33] = acc_q;
+assign inst_q[48] = mode_q;
+assign inst_q[47] = relu_q;
+assign inst_q[46] = acc_q;
+assign inst_q[45] = CEN_wmem_q;
+assign inst_q[44] = WEN_wmem_q;
+assign inst_q[43:33] = A_wmem_q;
 assign inst_q[32] = CEN_pmem_q;
 assign inst_q[31] = WEN_pmem_q;
 assign inst_q[30:20] = A_pmem_q;
@@ -101,6 +105,7 @@ core  #(.bw(bw), .col(col), .row(row)) core_instance (
 	.ofifo_valid(ofifo_valid),
   .d_xmem(D_xmem_q), 
   .sfp_out(sfp_out), 
+  .d_wmem(D_wmem_q),
   .in_n_weight(in_n_weight),
   .os_out_array(os_out_array),
 	.reset(reset)); 
@@ -113,6 +118,10 @@ initial begin
   CEN_xmem = 1;
   WEN_xmem = 1;
   A_xmem   = 0;
+  D_wmem   = 0;
+  CEN_wmem = 1;
+  WEN_wmem = 1;
+  A_wmem   = 0;
   ofifo_rd = 0;
   ififo_wr = 0;
   ififo_rd = 0;
@@ -396,10 +405,14 @@ always @ (posedge clk) begin
    D_xmem_q   <= D_xmem;
    CEN_xmem_q <= CEN_xmem;
    WEN_xmem_q <= WEN_xmem;
-   A_pmem_q   <= A_pmem;
+   A_xmem_q   <= A_xmem;
+   D_wmem_q   <= D_wmem;
+   CEN_wmem_q <= CEN_wmem;
+   WEN_wmem_q <= WEN_wmem;
+   A_wmem_q   <= A_wmem;
    CEN_pmem_q <= CEN_pmem;
    WEN_pmem_q <= WEN_pmem;
-   A_xmem_q   <= A_xmem;
+   A_pmem_q   <= A_pmem;
    ofifo_rd_q <= ofifo_rd;
    acc_q      <= acc;
    ififo_wr_q <= ififo_wr;
