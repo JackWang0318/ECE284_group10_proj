@@ -6,12 +6,12 @@ module core #(
 )(
     input clk,
     input reset,
-    input [35:0] inst,
+    input [48:0] inst,
     input [bw*row-1:0] d_xmem,
     output ofifo_valid,
     output [psum_bw*col-1:0] sfp_out,
 
-    input [bw*col-1:0] in_n_weight,
+    input [bw*col-1:0] d_wmem, // -> sram -> in_n_weight
     // input mode, // inst[35]
     output [psum_bw*col*row-1:0] os_out_array
 
@@ -21,6 +21,8 @@ wire [bw*row-1:0] data_in;
 wire [psum_bw*col-1:0] acc_in;
 wire [psum_bw*col-1:0] data_out;
 wire [psum_bw*col-1:0] spf_out;
+
+wire [bw*col-1:0] in_n_weight;  // sram(wmem) to ififo
 
 assign acc_in = pmem_data_out;
 assign data_in = xmem_data_out;
@@ -37,6 +39,18 @@ sram_32b_w2048 #(
     .CEN(inst[19]),
     .WEN(inst[18]),
     .A(inst[17:7])
+);
+
+// new sram - weight to ififo
+sram_32b_w2048 #(
+    .num(2048)
+) wmemory_inst (
+    .clk(clk),
+    .D(d_wmem),
+    .Q(in_n_weight),
+    .CEN(inst[45]),
+    .WEN(inst[44]),
+    .A(inst[43:33])
 );
 
 wire [127:0] pmem_data_in;
@@ -79,11 +93,11 @@ corelet #(
     .ofifo_valid(ofifo_valid),
     .psum_out(data_out),
     .data_sram_to_sfu(acc_in),
-    .accumulate(inst[33]),
-    .relu(inst[34]),
+    .accumulate(inst[46]),
+    .relu(inst[47]),
     .data_out(spf_out),
     .os_out_array(os_out_array),
-    .mode(inst[35])
+    .mode(inst[48])
 );
 
 endmodule

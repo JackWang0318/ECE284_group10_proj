@@ -13,5 +13,6 @@
 ./verilog/mac_array.v
 ./verilog/mac_row.v
 ./verilog/mac_tile.v
+./verilog/ififo.v
 ./verilog/ofifo.v
 ./verilog/os_result_reader.v
