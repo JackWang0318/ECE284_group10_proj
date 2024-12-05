@@ -112,7 +112,9 @@ initial begin
   $dumpfile("core_tb.vcd");
   $dumpvars(0,core_tb);
 
-  x_file = $fopen("activation.txt", "r");
+  //x_file = $fopen("activation.txt", "r");
+  x_file = $fopen("activation_random.txt", "r");
+
   // Following three lines are to remove the first three comment lines of the file
   x_scan_file = $fscanf(x_file,"%s", captured_data);
   x_scan_file = $fscanf(x_file,"%s", captured_data);
@@ -150,7 +152,8 @@ initial begin
   $fclose(x_file);
   /////////////////////////////////////////////////
 
-  w_file_name = "weight.txt";
+  //w_file_name = "weight.txt";
+  w_file_name = "weight_random.txt";
   w_file = $fopen(w_file_name, "r");
   // Following three lines are to remove the first three comment lines of the file
   w_scan_file = $fscanf(w_file,"%s", captured_data);
@@ -341,7 +344,9 @@ initial begin
 
   ////////// Accumulation /////////
   acc_file = $fopen("address.txt", "r");
-  out_file = $fopen("output.txt", "r");  
+  //out_file = $fopen("output.txt", "r");  
+  out_file = $fopen("output_random.txt", "r");  
+
 
   // Following three lines are to remove the first three comment lines of the file
   out_scan_file = $fscanf(out_file,"%s", answer); 
