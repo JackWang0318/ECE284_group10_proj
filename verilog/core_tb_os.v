@@ -15,10 +15,11 @@ parameter len_nij = 36;
 reg clk = 0;
 reg reset = 1;
 
-wire [35:0] inst_q; 
+wire [48:0] inst_q; 
 
 reg [1:0]  inst_w_q = 0; 
 reg [bw*row-1:0] D_xmem_q = 0;
+reg [bw*row-1:0] D_wmem_q = 0;
 reg CEN_xmem = 1;
 reg WEN_xmem = 1;
 reg [10:0] A_xmem = 0;
@@ -30,6 +31,12 @@ reg WEN_pmem = 1;
 reg [10:0] A_pmem = 0;
 reg CEN_pmem_q = 1;
 reg WEN_pmem_q = 1;
+reg CEN_wmem = 1;
+reg WEN_wmem = 1;
+reg CEN_wmem_q = 1;
+reg WEN_wmem_q = 1;
+reg [10:0] A_wmem = 0;
+reg [10:0] A_wmem_q = 0;
 reg [10:0] A_pmem_q = 0;
 reg ofifo_rd_q = 0;
 reg ififo_wr_q = 0;
@@ -106,7 +113,6 @@ core  #(.bw(bw), .col(col), .row(row)) core_instance (
   .d_xmem(D_xmem_q), 
   .sfp_out(sfp_out), 
   .d_wmem(D_wmem_q),
-  .in_n_weight(in_n_weight),
   .os_out_array(os_out_array),
 	.reset(reset)); 
 
