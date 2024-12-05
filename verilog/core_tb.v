@@ -209,7 +209,7 @@ initial begin
 
     for (i=0; i<col; i=i+1) begin
 			#0.5 clk = 1'b0;
-			if (t>0) A_xmem = A_xmem + 1; 
+			A_xmem = A_xmem + 1; 
 			#0.5 clk = 1'b1; 
 		end
 
@@ -264,7 +264,7 @@ initial begin
 
     for (i=0; i<len_nij; i=i+1) begin
 			#0.5 clk = 1'b0;
-			if (t>0) A_xmem = A_xmem + 1; 
+			A_xmem = A_xmem + 1; 
 			#0.5 clk = 1'b1; 
 		end
 
