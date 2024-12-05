@@ -101,11 +101,11 @@ assign inst_q[2]   = l0_wr_q;
 assign inst_q[1]   = execute_q; 
 assign inst_q[0]   = load_q; 
 
-os_result_reader  os_result_reader_instance (
-  .clk(clk), 
-  .out(os_s_out),
-  .os_out_array(os_out_array),
-  .reset(reset));
+// os_result_reader  os_result_reader_instance (
+//   .clk(clk), 
+//   .out(os_s_out),
+//   .os_out_array(os_out_array),
+//   .reset(reset));
 core  #(.bw(bw), .col(col), .row(row)) core_instance (
 	.clk(clk), 
 	.inst(inst_q),
@@ -256,7 +256,7 @@ initial begin
   end
 
   #0.5 clk = 1'b0;
-  l0_wr = 0;    // L0 write disable
+  ififo_wr = 0;    // L0 write disable
   #0.5 clk = 1'b1;
   
   for (i=0; i<10 ; i=i+1) begin
@@ -264,19 +264,27 @@ initial begin
     #0.5 clk = 1'b1;  
   end
 
-
+  #0.5 clk = 1'b0;
 ////////////////////////EXECUTE/////////////////////////////..........................................................................
+  l0_rd=1;
+  ififo_rd=1;
+  #0.5 clk = 1'b1;
 
-
-  for(i=0; i<27; i=i+1) begin
+  for(i=0; i<28; i=i+1) begin
+    #0.5 clk = 1'b0;
     execute = 1;
-    l0_rd=1;
-    // if (i > 0) begin
-      #0.5 clk = 1'b0;
-      A_xmem = A_xmem + 1;
-      A_wmem = A_wmem + 1;
-      #0.5 clk = 1'b1;
-    // end
+    #0.5 clk = 1'b1;
+  end
+
+  #0.5 clk = 1'b0;  
+  execute = 0;      // execute ends
+  l0_rd = 0;        // L0 read disable
+  ififo_rd = 0;
+  #0.5 clk = 1'b1;  
+
+    for (i=0; i<50 ; i=i+1) begin
+    #0.5 clk = 1'b0;
+    #0.5 clk = 1'b1;  
   end
 
   /////////////////////////////////////
@@ -443,20 +451,115 @@ initial begin
   error = 0;
   $display("############ Verification Start during accumulation #############"); 
 
-  for (i=0; i<len_onij+1; i=i+1) begin 
+  // for (i=0; i<len_onij+1; i=i+1) begin 
+  //   #0.5 clk = 1'b0; 
+  //   #0.5 clk = 1'b1; 
+  //   out_scan_file = $fscanf(out_file,"%128b", answer);
+  //   if (os_s_out == answer)
+  //       $display("%2d-th output featuremap Data matched! :D", i); 
+  //   else begin
+  //     $display("%2d-th output featuremap Data ERROR!!", i); 
+  //     $display("os_out: %16b", os_s_out);
+  //     $display("answer: %16b", answer);
+  //     error = 1;
+  //   end
+  // end
+  // for (i=0; i<8; i=i+1) begin 
     #0.5 clk = 1'b0; 
     #0.5 clk = 1'b1; 
     out_scan_file = $fscanf(out_file,"%128b", answer);
-    if (os_s_out == answer)
-        $display("%2d-th output featuremap Data matched! :D", i); 
+    if (os_out_array[127:0] == answer)
+        $display("%2d-th output featuremap Data matched! :D", 0); 
     else begin
-      $display("%2d-th output featuremap Data ERROR!!", i); 
-      $display("os_out: %16b", os_s_out);
-      $display("answer: %16b", answer);
+      $display("%2d-th output featuremap Data ERROR!!", 0); 
+      $display("os_outs: %128b", os_out_array[127:0]);
+      $display("answers: %128b", answer);
       error = 1;
     end
-  end
 
+    #0.5 clk = 1'b0; 
+    #0.5 clk = 1'b1; 
+    out_scan_file = $fscanf(out_file,"%128b", answer);
+    if (os_out_array[255:128] == answer)
+        $display("%2d-th output featuremap Data matched! :D", 1); 
+    else begin
+      $display("%2d-th output featuremap Data ERROR!!", 1); 
+      $display("os_outs: %128b", os_out_array[255:128]);
+      $display("answers: %128b", answer);
+      error = 1;
+    end
+
+    #0.5 clk = 1'b0; 
+    #0.5 clk = 1'b1; 
+    out_scan_file = $fscanf(out_file,"%128b", answer);
+    if (os_out_array[383:256] == answer)
+        $display("%2d-th output featuremap Data matched! :D", 2); 
+    else begin
+      $display("%2d-th output featuremap Data ERROR!!", 2); 
+      $display("os_outs: %128b", os_out_array[383:256]);
+      $display("answers: %128b", answer);
+      error = 1;
+    end
+
+    #0.5 clk = 1'b0; 
+    #0.5 clk = 1'b1; 
+    out_scan_file = $fscanf(out_file,"%128b", answer);
+    if (os_out_array[511:384] == answer)
+        $display("%2d-th output featuremap Data matched! :D", 3); 
+    else begin
+      $display("%2d-th output featuremap Data ERROR!!", 3); 
+      $display("os_outs: %128b", os_out_array[511:384]);
+      $display("answers: %128b", answer);
+      error = 1;
+    end
+
+    #0.5 clk = 1'b0; 
+    #0.5 clk = 1'b1; 
+    out_scan_file = $fscanf(out_file,"%128b", answer);
+    if (os_out_array[639:512] == answer)
+        $display("%2d-th output featuremap Data matched! :D", 4); 
+    else begin
+      $display("%2d-th output featuremap Data ERROR!!", 4); 
+      $display("os_outs: %128b", os_out_array[639:512]);
+      $display("answers: %128b", answer);
+      error = 1;
+    end
+    #0.5 clk = 1'b0; 
+    #0.5 clk = 1'b1; 
+    out_scan_file = $fscanf(out_file,"%128b", answer);
+    if (os_out_array[767:640] == answer)
+        $display("%2d-th output featuremap Data matched! :D", 5); 
+    else begin
+      $display("%2d-th output featuremap Data ERROR!!", 5); 
+      $display("os_outs: %128b", os_out_array[767:640]);
+      $display("answers: %128b", answer);
+      error = 1;
+    end
+
+    #0.5 clk = 1'b0; 
+    #0.5 clk = 1'b1; 
+    out_scan_file = $fscanf(out_file,"%128b", answer);
+    if (os_out_array[895:768] == answer)
+        $display("%2d-th output featuremap Data matched! :D", 6); 
+    else begin
+      $display("%2d-th output featuremap Data ERROR!!", 6); 
+      $display("os_outs: %128b", os_out_array[895:768]);
+      $display("answers: %128b", answer);
+      error = 1;
+    end
+
+    #0.5 clk = 1'b0; 
+    #0.5 clk = 1'b1; 
+    out_scan_file = $fscanf(out_file,"%128b", answer);
+    if (os_out_array[1023:896] == answer)
+        $display("%2d-th output featuremap Data matched! :D", 7); 
+    else begin
+      $display("%2d-th output featuremap Data ERROR!!", 7); 
+      $display("os_outs: %128b", os_out_array[1023:896]);
+      $display("answers: %128b", answer);
+      error = 1;
+    end
+  // end
 
   if (error == 0) begin
   	$display("############ No error detected ##############"); 

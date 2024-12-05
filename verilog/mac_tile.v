@@ -39,7 +39,7 @@ assign out_e = a_q;
 assign inst_e = inst_q;
 assign out_s = (mode == 0) ? mac_out : {12'b0, b_q};
 
-assign os_out_tile = (c_q > 0) ? c_q : 0;
+assign os_out_tile = (c_q[psum_bw-1] == 0) ? c_q : 16'b0;
 
 always @ (posedge clk) begin
 	if (reset == 1) begin
